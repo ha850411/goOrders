@@ -1,0 +1,12 @@
+server : 
+  port: :8888
+database: 
+  host: localhost
+  username: root
+  password: 
+  dbname: company
+  port: 3306
+common:
+  ENV: local | prod (choose one)
+  PROJECT_ROOT: AUTO_GET
+  UPLOADS_PATH: static/uploads
