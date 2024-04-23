@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-tw">
+
+<head>
+    <title>訂餐系統</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <!-- VENDOR CSS -->
+    <link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" href="/static/vendor/linearicons/style.css">
+
+    <!-- MAIN CSS -->
+    <link rel="stylesheet" href="/static/css/admin.css?{{ .staticFreshFlag}}">
+
+    <!-- GOOGLE FONTS -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet">
+
+    <!-- ICONS -->
+    <!-- <link rel="icon" href="/static/images/favicon.ico" type="image/x-icon"> -->
+
+    <!-- js -->
+    <script src="/static/vendor/axios.min.js"></script>
+    <script src="/static/vendor/vue.js"></script>
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- dataTables -->
+    <link rel="stylesheet" href="/static/vendor/dataTables/datatables.css">
+    <link rel="stylesheet" href="/static/vendor/dataTables/responsive/responsive.dataTables.min.css">
+    <script src="/static/vendor/dataTables/datatables.js"></script>
+    <script src="/static/vendor/dataTables/responsive/dataTables.responsive.min.js"></script>
+    <script src="/static/js/dataTable-init.js?{{ .staticFreshFlag}}"></script>
+
+    <!-- chartJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- select2 JS -->
+    <script src="/static/vendor/select2/js/select2.min.js"></script>
+    <link rel="stylesheet" href="/static/vendor/select2/css/select2.min.css">
+
+    <!-- lightbox -->
+    <script src="/static/vendor/lightbox/js/lightbox.min.js"></script>
+    <link rel="stylesheet" href="/static/vendor/lightbox/css/lightbox.min.css">
+    <script src="/static/vendor/sweetalert/sweetalert.min.js"></script>
+    <script src="/static/vendor/sortable/Sortable.min.js"></script>
+
+</head>
+
+<body>
+
+<div id="wrapper">
+    <div id="menu">
+        {{ block "layout/header" . }}{{end}}
+        {{ block "layout/menu" . }}{{end}}
+    </div>
+
+    <div id="app">
+        {{ block "content" . }}{{end}}
+        {{ block "modals" . }}{{end}}
+        {{ block "others" . }}{{end}}
+    </div>
+</div>
+
+<script>
+    const menu = Vue.createApp({
+        data() {
+            return {
+                active: '{{ .active }}',
+            }
+        },
+        mounted() {
+        },
+        watch: {
+        },
+        computed: {
+        },
+        methods: {
+        },
+    });
+const vm_menu = menu.mount('#menu');
+</script>
+</body>
+</html>

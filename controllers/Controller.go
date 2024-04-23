@@ -1,11 +1,29 @@
 package controllers
 
 import (
+	"database/sql"
+	"goOrders/database"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+var db *sql.DB
+
+func init() {
+	db = database.DbConnect()
+}
+
+func GetCommonOutput(c *gin.Context, active string) map[string]interface{} {
+	output := make(map[string]interface{})
+	username, _ := c.Get("username")
+	output["username"] = username
+	output["active"] = active
+	output["staticFreshFlag"] = time.Now().Unix()
+	return output
+}
 
 // 首頁
 func Index(c *gin.Context) {

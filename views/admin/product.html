@@ -1,0 +1,78 @@
+<!--引入共用模板-->
+{{ template "layout.html" . }}
+
+{{ define "content" }}
+<div class="main">
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="container-fluid">
+      <h3 class="page-title">商品管理</h3>
+      <div class="panel panel-headline">
+        <div class="panel-body">
+            <table class="table">
+                <tr>
+                    <th>商品名稱</th>
+                    <th>價格</th>
+                    <th>庫存</th>
+                    <th>操作</th>
+                </tr>
+                <tr>
+                    <td>商品1</td>
+                    <td>100</td>
+                    <td>10</td>
+                    <td>
+                        <a href="/admin/product/edit">編輯</a>
+                        <a href="/admin/product/delete">刪除</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>商品2</td>
+                    <td>200</td>
+                    <td>20</td>
+                    <td>
+                        <a href="/admin/product/edit">編輯</a>
+                        <a href="/admin/product/delete">刪除</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- END MAIN CONTENT -->
+</div>
+
+<script>
+const app = Vue.createApp({
+    data() {
+        return {
+            headers: [
+            { text: "PLAYER", value: "player" },
+            { text: "TEAM", value: "team"},
+            { text: "NUMBER", value: "number"},
+            { text: "POSITION", value: "position"},
+            { text: "HEIGHT", value: "indicator.height"},
+            { text: "WEIGHT (lbs)", value: "indicator.weight", sortable: true},
+            { text: "LAST ATTENDED", value: "lastAttended", width: 200},
+            { text: "COUNTRY", value: "country"},
+            ],
+            items: [
+            { player: "Stephen Curry", team: "GSW", number: 30, position: 'G', indicator: {"height": '6-2', "weight": 185}, lastAttended: "Davidson", country: "USA"},
+            { player: "Lebron James", team: "LAL", number: 6, position: 'F', indicator: {"height": '6-9', "weight": 250}, lastAttended: "St. Vincent-St. Mary HS (OH)", country: "USA"},
+            { player: "Kevin Durant", team: "BKN", number: 7, position: 'F', indicator: {"height": '6-10', "weight": 240}, lastAttended: "Texas-Austin", country: "USA"},
+            { player: "Giannis Antetokounmpo", team: "MIL", number: 34, position: 'F', indicator: {"height": '6-11', "weight": 242}, lastAttended: "Filathlitikos", country: "Greece"},
+            ],
+        }
+    },
+    mounted() {
+    },
+    watch: {
+    },
+    computed: {
+    },
+    methods: {
+    },
+});
+const vm = app.mount('#app');
+</script>
+{{end}}

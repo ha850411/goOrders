@@ -1,0 +1,78 @@
+{{define "layout/header"}}
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div style="display: flex;justify-content: space-between;align-items: center;padding: 0 15px;">
+        <div>
+            <a href="/admin">
+                <div style="display: flex; align-items: center">
+                    <!-- <img src="/static/images/logo.jpg" alt="Klorofil Logo" style="height: 20px; margin-right: 3px"
+                        class="img-responsive logo" /> -->
+                    <div style="font-size: 20px; font-weight: bold;white-space: nowrap;">訂餐系統</div>
+                </div>
+            </a>
+        </div>
+        <div class="header-menu">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle icon-menu" data-toggle="dropdown">
+                    
+                        <i class="lnr lnr-alarm"></i>
+                        <span class="badge bg-danger">0</span>
+                    </a>
+                    <ul class="dropdown-menu notifications">
+                        <li>
+                            <a href="#" class="notification-item">
+                                <span>無提醒</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa-solid fa-bars"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="/admin/product" :class="active == 'product' ? 'active' : ''">
+                                <i class="fa-solid fa-cart-shopping" style="width: 25px;"></i>
+                                <span>商品管理</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="header-profile">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle icon-menu" data-toggle="dropdown">
+                        <i class="lnr lnr-alarm"></i>
+                        <span class="badge bg-danger">0</span>
+                    </a>
+                    <ul class="dropdown-menu notifications">
+                        <li>
+                            <a href="#" class="notification-item">
+                                <span>無提醒</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <img src="/static/images/user.png" class="img-circle" alt="Avatar" />
+                        <span>{{ .username}}</span>
+                        <i class="icon-submenu lnr lnr-chevron-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="/admin/logout">
+                                <i class="lnr lnr-exit"></i>
+                                <span>登出</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{{end}}

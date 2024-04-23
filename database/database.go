@@ -8,6 +8,8 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type DbInfo struct {
@@ -18,14 +20,15 @@ type DbInfo struct {
 	Dbname   string
 }
 
+var dbInfo = DbInfo{
+	Host:     conf.Settings.Database.Host,
+	Port:     conf.Settings.Database.Port,
+	Username: conf.Settings.Database.Username,
+	Password: conf.Settings.Database.Password,
+	Dbname:   conf.Settings.Database.Dbname,
+}
+
 func DbConnect() *sql.DB {
-	dbInfo := DbInfo{
-		Host:     conf.Settings.Database.Host,
-		Port:     conf.Settings.Database.Port,
-		Username: conf.Settings.Database.Username,
-		Password: conf.Settings.Database.Password,
-		Dbname:   conf.Settings.Database.Dbname,
-	}
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbInfo.Username, dbInfo.Password, dbInfo.Host, dbInfo.Port, dbInfo.Dbname)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -34,6 +37,15 @@ func DbConnect() *sql.DB {
 	db.SetConnMaxLifetime(time.Minute * 3)
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
+	return db
+}
+
+func GormConnect() *gorm.DB {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=False&loc=Local", dbInfo.Username, dbInfo.Password, dbInfo.Host, dbInfo.Port, dbInfo.Dbname)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
 	return db
 }
 

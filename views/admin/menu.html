@@ -1,0 +1,17 @@
+{{define "layout/menu"}}
+
+<div id="sidebar-nav" class="sidebar">
+    <div class="sidebar-scroll">
+        <nav>
+            <ul class="nav">
+                <li>
+                    <a href="/admin/product" :class="active == 'product' ? 'active' : ''">
+                        <i class="fa-solid fa-cart-shopping" style="width: 25px;"></i>
+                        <span>商品管理</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+{{end}}

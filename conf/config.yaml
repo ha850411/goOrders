@@ -3,7 +3,7 @@ server :
 database: 
   host: localhost
   username: root
-  password: 
+  password: 1234
   dbname: go-orders
   port: 3306
 common:
