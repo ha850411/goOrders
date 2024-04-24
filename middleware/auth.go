@@ -1,7 +1,8 @@
 package middleware
 
 import (
-	"encoding/base64"
+	"context"
+	"goOrders/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,12 +11,15 @@ import (
 // 後台中間件
 func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		loginToken, err := c.Cookie("loginToken")
-		if err != nil {
+		loginToken, _ := c.Cookie("loginToken")
+		if loginToken == "" {
 			c.Redirect(http.StatusMovedPermanently, "/admin/login")
 		}
-		username, _ := base64.RawURLEncoding.DecodeString(loginToken)
-		c.Set("username", string(username))
+		client, _ := service.GetRedisClient()
+		userInfo, _ := client.Get(context.Background(), loginToken).Result()
+		if userInfo == "" {
+			c.Redirect(http.StatusMovedPermanently, "/admin/login")
+		}
 		c.Next()
 	}
 }

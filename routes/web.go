@@ -19,7 +19,7 @@ func GetWebRouters(r *gin.Engine) {
 	adminGroup.GET("/product", middleware.Auth(), controllers.ProductList) // 商品管理
 
 	// ========= 前台 ===========
-	r.GET("/", middleware.CsrfHandler(), controllers.Index)
+	// r.GET("/", middleware.CsrfHandler(), controllers.Index)
 
 	// auto cert
 	r.GET("/.well-known/acme-challenge/*files", controllers.AutoCert)

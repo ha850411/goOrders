@@ -1,12 +1,18 @@
 package controllers
 
 import (
+	"context"
 	"crypto/md5"
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"goOrders/database"
+	"goOrders/models"
+	"goOrders/service"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,29 +30,37 @@ func Auth(c *gin.Context) {
 	// 將密碼做 md5
 	hash := md5.Sum([]byte(password))
 	password = hex.EncodeToString(hash[:])
-	fmt.Printf("password: %v\n", password)
 
 	// db connect
-	db := database.DbConnect()
-	var count int
-	sql := fmt.Sprintf("SELECT count(*) FROM users WHERE username='%s' AND password='%s'", username, password)
-	err := db.QueryRow(sql).Scan(&count)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": err,
-		})
-	}
+	db := database.GormConnect()
+	userData := &models.Users{}
+	db.Where("username = ? AND password = ?", username, password).First(&userData)
+	fmt.Printf("userData.Username: %v\n", userData.Username)
+
 	// base64
-	token := base64.RawURLEncoding.EncodeToString([]byte(username))
-	if count >= 1 {
+	token := generateSessionID()
+
+	if userData.Username != "" {
 		// 記住我
 		remember := c.PostForm("remember")
 		expire := 3600
 		if remember == "Y" {
 			expire = 86400 * 30
 		}
-		// 設定登入 token
+		// 設定隨機 token
 		c.SetCookie("loginToken", token, expire, "/", "", false, false)
+		// 建立 redis 連線
+		redis, err := service.GetRedisClient()
+		if err != "" {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
+		// 將登入資訊 json encode
+		jsonData, _ := json.Marshal(userData)
+
+		// 將登入資訊寫入 redis
+		redis.Set(context.Background(), token, string(jsonData), time.Duration(expire)*time.Second)
+
 		// 轉導到後台首頁
 		c.Redirect(http.StatusMovedPermanently, "/admin")
 	} else {
@@ -60,4 +74,15 @@ func Auth(c *gin.Context) {
 func Logout(c *gin.Context) {
 	c.SetCookie("loginToken", "", -1, "/", "", false, false)
 	c.Redirect(http.StatusMovedPermanently, "/admin/login")
+}
+
+func generateSessionID() string {
+	// Generate a random session ID
+	b := make([]byte, 16)
+	_, err := rand.Read(b)
+	if err != nil {
+		// Fallback to current timestamp if random generation fails
+		return fmt.Sprintf("%d", time.Now().UnixNano())
+	}
+	return "auth_" + base64.URLEncoding.EncodeToString(b)
 }

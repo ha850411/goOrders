@@ -1,8 +1,13 @@
 package controllers
 
 import (
+	"context"
 	"database/sql"
+	"encoding/json"
 	"goOrders/database"
+	"goOrders/models"
+	"goOrders/service"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -18,8 +23,18 @@ func init() {
 
 func GetCommonOutput(c *gin.Context, active string) map[string]interface{} {
 	output := make(map[string]interface{})
-	username, _ := c.Get("username")
-	output["username"] = username
+
+	redis, err := service.GetRedisClient()
+	if err != "" {
+		log.Println(err)
+	}
+	token, _ := c.Cookie("loginToken")
+
+	jsonData, _ := redis.Get(context.Background(), token).Result()
+	user := models.Users{}
+	_ = json.Unmarshal([]byte(jsonData), &user)
+
+	output["username"] = user.Username
 	output["active"] = active
 	output["staticFreshFlag"] = time.Now().Unix()
 	return output
