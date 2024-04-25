@@ -3,7 +3,6 @@ package api
 import (
 	"goOrders/database"
 	"goOrders/models"
-	"goOrders/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,14 +10,15 @@ import (
 
 func GetProducts(c *gin.Context) {
 	db := database.GormConnect()
-	result := []models.Products{}
-	db.Where("status = 1").Find(&result)
+	productsList := []models.Products{}
 
-	// Redis client
-	_, err := service.GetRedisClient()
-	if err != "" {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
+	// 取得啟用的商品
+	db.Where("status = 1").Find(&productsList)
+
+	result := make([]interface{}, 0)
+	for _, v := range productsList {
+		db.Table("products_type").Where("pid = ?", v.Id).Find(&v.ProductType)
+		result = append(result, v)
 	}
 
 	c.JSON(http.StatusOK, result)
