@@ -12,6 +12,7 @@ import (
 type Conf struct {
 	Server   ServerConf   `yaml:"server"`
 	Database DatabaseConf `yaml:"database"`
+	Redis    RedisConf    `yaml:"redis"`
 	Common   CommonConf   `yaml:"common"`
 }
 
@@ -31,6 +32,12 @@ type CommonConf struct {
 	ENV          string `yaml:"ENV"`
 	PROJECT_ROOT string `yaml:"PROJECT_ROOT"`
 	UPLOADS_PATH string `yaml:"UPLOADS_PATH"`
+}
+
+type RedisConf struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Password string `yaml:"password"`
 }
 
 var Settings Conf

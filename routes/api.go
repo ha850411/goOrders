@@ -11,6 +11,7 @@ func GetApiRouters(r *gin.Engine) {
 	{
 		producttRouter := apiGroup.Group("product")
 		{
+			producttRouter.GET("", api.GetProducts)
 			producttRouter.GET("/", api.GetProducts)
 		}
 	}

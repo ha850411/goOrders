@@ -1,22 +1,18 @@
 version: "3"
 services:
 
-  golang1.19:
+  golang1.21:
     build:
       context: .
       dockerfile: ./Dockerfile
-    container_name: golang1.19
+    container_name: golang1.21
     restart: unless-stopped
     working_dir: /app
     ports:
-      - 80:8888
-      - 443:443
+      - 8888:8888
+      # - 443:443
     volumes:
       - .:/app
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_DB: 0
   redis:
     image: redis:6.0.3-alpine
     ports:

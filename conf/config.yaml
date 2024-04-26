@@ -1,11 +1,15 @@
 server : 
   port: :8888
 database: 
-  host: localhost
+  host: 10.102.250.222
   username: root
   password: 1234
   dbname: go-orders
   port: 3306
+redis:
+  host: redis
+  port: 6379
+  password:
 common:
   ENV: local
   PROJECT_ROOT: AUTO_GET

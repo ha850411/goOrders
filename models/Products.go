@@ -5,7 +5,7 @@ type Products struct {
 	Name          string         `json:"name"`
 	Amount        int            `json:"amount"`
 	Price         int            `json:"price"`
-	DiscountPrice int            `json:"DiscountPrice"`
+	DiscountPrice int            `json:"discount_price"`
 	Status        int            `json:"status"`
 	Content       string         `json:"content"`
 	Sort          int            `json:"sort"`
