@@ -22,13 +22,13 @@ func GetProducts(c *gin.Context) {
 	var totalRows int64 // 總筆數
 
 	// 取得啟用的商品
-	queryBuilder := db.Where("status = 1")
+	queryBuilder := db.Model(&models.Products{}).Where("status = 1")
 	// 關鍵字
 	if keyword != "" {
 		queryBuilder.Where("name LIKE ?", "%"+keyword+"%")
 	}
-	totalRows = queryBuilder.Find(&productsList).RowsAffected
-	queryBuilder.Limit(limit).Offset(page*limit - limit).Find(&productsList)
+	queryBuilder.Count(&totalRows)
+	queryBuilder.Debug().Limit(limit).Offset(page*limit - limit).Find(&productsList)
 
 	data := make([]interface{}, 0)
 	for _, v := range productsList {

@@ -21,6 +21,9 @@ func createMyRender() multitemplate.Renderer {
 	// 商品頁
 	render.AddFromFiles("productList", admin["layout"], admin["header"], admin["menu"], "views/admin/product.html")
 
+	// 設定頁
+	render.AddFromFiles("setting", admin["layout"], admin["header"], admin["menu"], "views/admin/setting.html")
+
 	// common := map[string]string{
 	// 	"menu":         "views/layout/menu.html",
 	// 	"header":       "views/layout/header.html",

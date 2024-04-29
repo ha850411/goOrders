@@ -2,7 +2,7 @@ package conf
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path"
 	"runtime"
 
@@ -10,10 +10,11 @@ import (
 )
 
 type Conf struct {
-	Server   ServerConf   `yaml:"server"`
-	Database DatabaseConf `yaml:"database"`
-	Redis    RedisConf    `yaml:"redis"`
-	Common   CommonConf   `yaml:"common"`
+	Server     ServerConf   `yaml:"server"`
+	Database   DatabaseConf `yaml:"database"`
+	Redis      RedisConf    `yaml:"redis"`
+	Common     CommonConf   `yaml:"common"`
+	LineNotify LineNotify   `yaml:"lineNotify"`
 }
 
 type ServerConf struct {
@@ -40,6 +41,11 @@ type RedisConf struct {
 	Password string `yaml:"password"`
 }
 
+type LineNotify struct {
+	ClientID     string `yaml:"CLIENT_ID"`
+	ClientSecret string `yaml:"CLIENT_SECRET"`
+}
+
 var Settings Conf
 
 func init() {
@@ -59,7 +65,7 @@ func init() {
 
 func Readfile(filePath string) (Conf, error) {
 	var settings Conf
-	yamlFile, err := ioutil.ReadFile(filePath)
+	yamlFile, err := os.ReadFile(filePath)
 	if err != nil {
 		return settings, err
 	}

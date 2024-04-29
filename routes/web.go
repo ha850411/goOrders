@@ -15,8 +15,10 @@ func GetWebRouters(r *gin.Engine) {
 	adminGroup.POST("/auth", controllers.Auth)    // 登入驗證
 	adminGroup.GET("/logout", controllers.Logout) // 登出頁
 
-	adminGroup.GET("/", middleware.Auth(), controllers.ProductList)        // 商品管理
-	adminGroup.GET("/product", middleware.Auth(), controllers.ProductList) // 商品管理
+	adminGroup.GET("/", middleware.Auth(), controllers.ProductManager)        // 商品管理
+	adminGroup.GET("/product", middleware.Auth(), controllers.ProductManager) // 商品管理
+
+	adminGroup.GET("/setting", middleware.Auth(), controllers.SettingManager) // 商品管理
 
 	// ========= 前台 ===========
 	// r.GET("/", middleware.CsrfHandler(), controllers.Index)

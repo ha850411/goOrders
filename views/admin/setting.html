@@ -1,0 +1,66 @@
+<!--引入共用模板-->
+{{ template "layout.html" .}}
+{{ define "content" }}
+<div class="main">
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="container-fluid">
+      <h3 class="page-title">設定</h3>
+      <div class="panel panel-headline">
+        <div class="panel-body">
+            <h3>修改密碼</h3>
+            <form action="/admin/setting/updatePassword" method="POST" id="mainFm">
+                <div class="form-inline">
+                    <label for="modal_name">新密碼:</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                    <i class="fa-solid fa-eye" style="color:#a5a5a5;cursor:pointer;" data-el="password"></i>
+                </div>
+                <div class="form-inline" style="margin-top: 10px;">
+                    <label for="modal_name">再次輸入新密碼:</label>
+                    <input type="password" class="form-control" id="password2">
+                    <i class="fa-solid fa-eye" style="color:#a5a5a5;cursor:pointer;" data-el="password2"></i>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="updatePassword()">修改</button>
+            </form>
+            <hr>
+            <h3>Line Notify<span style="font-size:15px;" v-if="bindLineNotify">(已綁定)</span></h3>
+            
+            <template v-if="bindLineNotify">
+                <button type="button" class="btn btn-danger" style="height:30px;" onclick="unsetLine()">取消綁定</button>
+            </template>
+            <template v-else>
+                <a :href="lineUrl">
+                    <div style="background-image: url('/static/images/btn_login_base.png'); width:94px;height:44px;position: relative;">
+                        <span style="font-size:20px;line-height:20px; color:#FFFFFF; position:absolute; right:5px;top:12px;">綁定</span>
+                    </div>
+                </a>
+            </template>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- END MAIN CONTENT -->
+</div>
+
+
+<script>
+const app = Vue.createApp({
+    delimiters : ["@{", "}"],
+    data() {
+        return {
+            bindLineNotify: eval('{{.bindLineNotify}}'),
+            lineUrl: '{{.lineUrl}}',
+        }
+    },
+    mounted() {
+    },
+    watch: {
+    },
+    computed: {
+    },
+    methods: {
+    },
+});
+const vm = app.mount('#app');
+</script>
+{{end}}

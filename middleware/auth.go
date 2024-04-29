@@ -20,6 +20,7 @@ func Auth() gin.HandlerFunc {
 		if userInfo == "" {
 			c.Redirect(http.StatusMovedPermanently, "/admin/login")
 		}
+		c.Set("userInfo", userInfo)
 		c.Next()
 	}
 }

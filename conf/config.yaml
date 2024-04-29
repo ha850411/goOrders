@@ -14,3 +14,6 @@ common:
   ENV: local
   PROJECT_ROOT: AUTO_GET
   UPLOADS_PATH: static/uploads
+lineNotify:
+  CLIENT_ID: Hg6jcH8P2quWxvlBEpC4n8
+  CLIENT_SECRET: YE5r6rhpBFUGjqyeK7z9TCUKsSkxK2DrF0EpZAjntUM

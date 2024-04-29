@@ -65,6 +65,7 @@
 
 <script>
     const menu = Vue.createApp({
+        delimiters : ["@{", "}"],
         data() {
             return {
                 active: '{{ .active }}',
@@ -77,6 +78,50 @@
         computed: {
         },
         methods: {
+            renderMenu: function (action) {
+                let output = '';
+                let menuObject = [
+                    {
+                        'name': '商品管理',
+                        'active': 'product',
+                        'url': '/admin/product',
+                        'icon': 'fa-solid fa-cart-shopping',
+                    },
+                    {
+                        'name': '桌號管理',
+                        'active': 'table',
+                        'url': '/admin/table',
+                        'icon': 'fa-solid fa-toolbox',
+                    },
+                    {
+                        'name': '訂單管理',
+                        'active': 'order',
+                        'url': '/admin/order',
+                        'icon': 'fa-solid fa-list',
+                    },
+                    {
+                        'name': '設定',
+                        'active': 'setting',
+                        'url': '/admin/setting',
+                        'icon': 'fa-solid fa-gear',
+                    },
+                ];
+                for (const val of menuObject) {
+                    let active = this.active == val.active ? 'active' : '';
+                    output += `<li>
+                        <a href="` + val.url + `" class="` + active + `">
+                            <i class="` + val.icon + `" style="width: 25px;"></i>
+                            <span>` + val.name + `</span>
+                        </a>
+                    </li>`;
+                }
+                switch (action) {
+                    case 'menu':
+                        output = `<nav><ul class="nav">` + output + `</ul></nav>`;
+                        break;
+                }
+                return output;
+            }
         },
     });
 const vm_menu = menu.mount('#menu');

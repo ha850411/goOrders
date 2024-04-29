@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ProductList(c *gin.Context) {
+func ProductManager(c *gin.Context) {
 	output := GetCommonOutput(c, "product")
 	c.HTML(http.StatusOK, "productList", output)
 }
