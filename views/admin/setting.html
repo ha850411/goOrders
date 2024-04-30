@@ -26,7 +26,7 @@
             <h3>Line Notify<span style="font-size:15px;" v-if="bindLineNotify">(已綁定)</span></h3>
             
             <template v-if="bindLineNotify">
-                <button type="button" class="btn btn-danger" style="height:30px;" onclick="unsetLine()">取消綁定</button>
+                <button type="button" class="btn btn-danger" style="height:30px;" @click="unsetBind()">取消綁定</button>
             </template>
             <template v-else>
                 <a :href="lineUrl">
@@ -59,6 +59,15 @@ const app = Vue.createApp({
     computed: {
     },
     methods: {
+        unsetBind: async function() {
+            try {
+                const response = await axios.get('/api/setting/unsetLineNotify');
+                alert("取消綁定成功");
+            } catch (error) {
+                console.log(error);
+            }
+            location.reload();
+        },
     },
 });
 const vm = app.mount('#app');

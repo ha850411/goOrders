@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	REDIRECT_URI    = ""
+	REDIRECT_URI    = "http://localhost:8888/api/line/oauth"
 	OAUTH_TOKEN_URL = "https://notify-bot.line.me/oauth/token"
 	NOTICE_URL      = "https://notify-api.line.me/api/notify"
 	CLIENT_ID       = conf.Settings.LineNotify.ClientID
@@ -13,9 +13,7 @@ var (
 )
 
 func init() {
-	if conf.Settings.Common.ENV == "local" {
-		REDIRECT_URI = "http://localhost:8888/linebot/notify"
-	} else {
-		REDIRECT_URI = "http://107.191.52.212/linebot/notify"
+	if conf.Settings.Common.ENV != "local" {
+		REDIRECT_URI = "http://107.191.52.212/api/line/oauth"
 	}
 }
