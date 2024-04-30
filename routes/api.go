@@ -26,6 +26,7 @@ func GetApiRouters(r *gin.Engine) {
 		lineRouter := apiGroup.Group("line")
 		{
 			lineRouter.GET("/oauth", api.LineOauth)
+			lineRouter.GET("/login", api.LineLogin)
 		}
 	}
 }

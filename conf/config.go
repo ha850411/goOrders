@@ -15,6 +15,7 @@ type Conf struct {
 	Redis      RedisConf    `yaml:"redis"`
 	Common     CommonConf   `yaml:"common"`
 	LineNotify LineNotify   `yaml:"lineNotify"`
+	LineLogin  LineLogin    `yaml:"lineLogin"`
 }
 
 type ServerConf struct {
@@ -42,6 +43,11 @@ type RedisConf struct {
 }
 
 type LineNotify struct {
+	ClientID     string `yaml:"CLIENT_ID"`
+	ClientSecret string `yaml:"CLIENT_SECRET"`
+}
+
+type LineLogin struct {
 	ClientID     string `yaml:"CLIENT_ID"`
 	ClientSecret string `yaml:"CLIENT_SECRET"`
 }
