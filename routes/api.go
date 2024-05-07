@@ -12,10 +12,18 @@ func GetApiRouters(r *gin.Engine) {
 	{
 		apiGroup.Use(middleware.Auth())
 
-		producttRouter := apiGroup.Group("product")
+		productRouter := apiGroup.Group("product")
 		{
-			producttRouter.GET("", api.GetProducts)
-			producttRouter.GET("/", api.GetProducts)
+			productRouter.GET("", api.GetProducts)
+			productRouter.PUT("", api.UpdateProduct)
+			productRouter.POST("", api.CreateProduct)
+			productRouter.DELETE("/:id", api.DeleteProduct)
+		}
+
+		productTypeRouter := apiGroup.Group("productType")
+		{
+			productTypeRouter.GET("", api.GetProductType)
+			productTypeRouter.GET("/", api.GetProductType)
 		}
 
 		settingRouter := apiGroup.Group("setting")

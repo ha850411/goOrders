@@ -50,7 +50,7 @@ func Auth(c *gin.Context) {
 	// db connect
 	db := database.GormConnect()
 	userData := &models.Users{}
-	db.Where("username = ? AND password = ?", username, password).First(&userData)
+	db.Where("username = ? AND password = ? AND role = 1", username, password).First(&userData)
 	fmt.Printf("userData.Username: %v\n", userData.Username)
 
 	// base64
