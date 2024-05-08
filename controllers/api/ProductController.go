@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"goOrders/database"
 	"goOrders/models"
 	"net/http"
@@ -22,8 +23,8 @@ func GetProducts(c *gin.Context) {
 	productsList := []models.Products{}
 
 	// 接收參數並強制轉 int
-	limitQuery := c.DefaultQuery("limit", "10")
-	pageQuery := c.DefaultQuery("page", "0")
+	limitQuery := c.Query("limit")
+	pageQuery := c.Query("page")
 	keyword := c.DefaultQuery("keyword", "")
 	limit, _ := strconv.Atoi(limitQuery)
 	page, _ := strconv.Atoi(pageQuery)
@@ -36,7 +37,14 @@ func GetProducts(c *gin.Context) {
 		queryBuilder.Where("name LIKE ?", "%"+keyword+"%")
 	}
 	queryBuilder.Count(&totalRows)
-	queryBuilder.Debug().Limit(limit).Offset(page*limit - limit).Find(&productsList)
+
+	if limit > 0 {
+		queryBuilder.Limit(limit)
+	}
+	if page > 0 {
+		queryBuilder.Offset(page*limit - limit)
+	}
+	queryBuilder.Debug().Order("sort asc").Find(&productsList)
 
 	data := make([]interface{}, 0)
 	for _, v := range productsList {
@@ -179,4 +187,29 @@ func DeleteProduct(c *gin.Context) {
 	db.Debug().Model(&models.Products{}).Where("id = ?", id).Update("status", 0)
 
 	c.JSON(http.StatusOK, gin.H{"message": "刪除成功"})
+
+}
+
+/**
+ * @api {patch} /api/product/sort 商品排序
+ */
+func SortProduct(c *gin.Context) {
+	type SortData struct {
+		SortIds []string `json:"sortIds" required:"true"`
+		Page    int      `json:"page" required:"true"`
+		Perpage int      `json:"perpage" required:"true"`
+	}
+
+	var sortData SortData
+	if err := c.ShouldBindJSON(&sortData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	fmt.Printf("sortData: %+v\n", sortData)
+
+	db := database.GormConnect()
+	for idx, pid := range sortData.SortIds {
+		db.Debug().Model(&models.Products{}).Where("id = ?", pid).Update("sort", (sortData.Page-1)*sortData.Perpage+idx+1)
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "更新成功"})
 }

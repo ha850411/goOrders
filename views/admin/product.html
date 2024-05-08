@@ -12,13 +12,13 @@
 
             <div style="margin-bottom: 10px;">
                 <button type="button" class="btn btn-primary" style="margin-right: 5px;" @click="addProduct()">新增</button>
-                <button type="button" class="btn btn-primary">排序</button>
+                <button type="button" class="btn btn-primary" @click="openSortModal()">排序</button>
             </div>
 
 
             <!-- search bar -->
             <div class="row" style="margin:0 0 5px 0;">
-                <div class="col-md-6 input-group">
+                <div class="col-md-3 input-group">
                     <span class="input-group-addon">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </span>
@@ -28,14 +28,15 @@
 
             <!-- table -->
             <div class="table-responsive">
-                <table class="table table-striped table-bordered">
-                    <tr>
+                <table class="table table-striped table-bordered" ref="dataTable">
+                    <thead>
                         <th>商品名稱</th>
                         <th>原價</th>
                         <th>優惠價</th>
                         <th>庫存</th>
                         <th>操作</th>
-                    </tr>
+                    </thead>
+                    <tbody>
                     <tr v-if="productApiLoading">
                         <td colspan="10" align="center">
                             <img style="width: 25px;" src="/static/images/loading.gif">
@@ -45,8 +46,11 @@
                         <tr><td colspan="10" align="center">無資料</td></tr>
                     </template>
                     <template v-else>
-                        <tr v-for="(data, index) in productApiData">
-                            <td>@{ data.name }</td>
+                        <tr v-for="(data, index) in productApiData" :data-id="data.id">
+                            <td>
+                                <i class="fa-solid fa-sort sortItem pointer" style="margin-right: 3px;"></i>
+                                @{ data.name }
+                            </td>
                             <td>@{ data.price }</td>
                             <td>@{ data.discount_price }</td>
                             <td>@{ data.amount }</td>
@@ -60,6 +64,7 @@
                             </td>
                         </tr>
                     </template>
+                    </tbody>
                 </table>
                 
                 <div class="d-flex" style="align-items: center; float: right;">
@@ -94,6 +99,7 @@
   <!-- END MAIN CONTENT -->
 </div>
 
+<!-- add/edit modal -->
 <div id="productEditModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
@@ -147,6 +153,33 @@
         </div>
     </div>
 </div>
+<!-- sort modal -->
+<div id="sortModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" v-if="modalMode == 'edit'">編輯產品</h4>
+                <h4 class="modal-title" v-else>新增產品</h4>
+            </div>
+            <div class="modal-body">
+                <div class="list-group col" ref="sortItems">
+                    <template v-if="sortProductApiLoading">
+                        <img style="width: 25px;" src="/static/images/loading.gif">
+                    </template>
+                    <template v-else>
+                        <div v-for="data in sortProductApiData"
+                        class="list-group-item" :data-id="data.id">
+                            <i class="fa-solid fa-sort"></i>
+                            <span style="margin-left:3px;">@{ data.name }</span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {{end}}
 
 {{ define "script" }}
@@ -156,16 +189,20 @@ const app = Vue.createApp({
     data() {
         return {
             page: 1,
-            perpage: 5,
+            perpage: 10,
             totalRows: 0,
             totalPage: 0,
             keyword: "",
             productApiData:[],
             productApiLoading: false,
             productTypeApiData: [],
+            sortProductApiLoading: false,
+            sortProductApiData: [],
             modalData: {},
             modalMode: "add",
             selectedProductType: [],
+            sortable: null,
+            sortable2: null,
         }
     },
     mounted() {
@@ -200,6 +237,13 @@ const app = Vue.createApp({
             } catch (error) {
                 console.log(error);
             }
+            this.sortable = new Sortable( this.$refs.dataTable.children[1], {
+                animation: 150,
+                handle: ".sortItem",
+                ghostClass: 'blue-background-class',
+
+                onUpdate: this.sortableUpdate,
+            });
             this.productApiLoading = false;
         },
         getProductTypeData: async function() {
@@ -334,6 +378,50 @@ const app = Vue.createApp({
             }
             return true;
         },
+        sortableUpdate: async function(event) {
+            try {
+                const response = await axios.patch('/api/product/sort', {
+                    sortIds: this.sortable.toArray(),
+                    page: this.page,
+                    perpage: this.perpage,
+                });
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        sortableUpdate2: async function(event) {
+            try {
+                const response = await axios.patch('/api/product/sort', {
+                    sortIds: this.sortable2.toArray(),
+                    page: this.page,
+                    perpage: this.perpage,
+                });
+            } catch (error) {
+                console.log(error);
+            } finally {
+                this.getProductData();
+            }
+        },
+        openSortModal: async function() {
+            this.sortProductApiLoading = true;
+            try {
+                const response = await axios.get('/api/product');
+                this.sortProductApiData = response.data?.data;
+            } catch (error) {
+                console.log(error);
+            }
+            this.sortProductApiLoading = false;
+
+            this.$nextTick(function(){
+                this.sortable2 = new Sortable( this.$refs.sortItems, {
+                    animation: 150,
+                    ghostClass: 'blue-background-class',
+                    onUpdate: this.sortableUpdate2,
+                });
+            });
+            
+            $('#sortModal').modal('show');
+        }
     },
 });
 const vm = app.mount('#app');

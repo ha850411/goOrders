@@ -18,6 +18,7 @@ func GetApiRouters(r *gin.Engine) {
 			productRouter.PUT("", api.UpdateProduct)
 			productRouter.POST("", api.CreateProduct)
 			productRouter.DELETE("/:id", api.DeleteProduct)
+			productRouter.PATCH("/sort", api.SortProduct)
 		}
 
 		productTypeRouter := apiGroup.Group("productType")
