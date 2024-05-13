@@ -29,6 +29,14 @@ func GetApiRouters(r *gin.Engine) {
 			productTypeRouter.DELETE("/:id", api.DeleteProductType)
 		}
 
+		deskRouter := apiGroup.Group("desk")
+		{
+			deskRouter.GET("", api.GetDesks)
+			deskRouter.PUT("", api.UpdateDesk)
+			deskRouter.POST("", api.CreateDesk)
+			deskRouter.DELETE("/:id", api.DeleteDesk)
+		}
+
 		settingRouter := apiGroup.Group("setting")
 		{
 			settingRouter.GET("/unsetLineNotify", api.UnsetLineNotify)

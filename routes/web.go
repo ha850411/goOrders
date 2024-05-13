@@ -18,6 +18,7 @@ func GetWebRouters(r *gin.Engine) {
 	adminGroup.GET("/", middleware.Auth(), controllers.ProductManager)                 // 商品管理
 	adminGroup.GET("/product", middleware.Auth(), controllers.ProductManager)          // 商品管理
 	adminGroup.GET("/product-type", middleware.Auth(), controllers.ProductTypeManager) // 商品類別管理
+	adminGroup.GET("/desk", middleware.Auth(), controllers.DeskManager)                // 桌號管理
 
 	adminGroup.GET("/setting", middleware.Auth(), controllers.SettingManager) // 設定
 

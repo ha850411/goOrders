@@ -1,7 +1,7 @@
 package models
 
 // 紀錄桌號
-type Tables struct {
+type Desks struct {
 	Id         int    `json:"id"`
 	Name       string `json:"name"`
 	Status     int    `json:"status"` // 0: 關閉, 1: 開啟

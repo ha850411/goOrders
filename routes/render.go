@@ -24,6 +24,9 @@ func createMyRender() multitemplate.Renderer {
 	// 商品類別
 	render.AddFromFiles("productTypeList", admin["layout"], admin["header"], admin["menu"], "views/admin/product-type.html")
 
+	// 桌號管理
+	render.AddFromFiles("deskList", admin["layout"], admin["header"], admin["menu"], "views/admin/desk.html")
+
 	// 設定頁
 	render.AddFromFiles("setting", admin["layout"], admin["header"], admin["menu"], "views/admin/setting.html")
 
