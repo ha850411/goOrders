@@ -248,8 +248,8 @@ const app = Vue.createApp({
         },
         getProductTypeData: async function() {
             try {
-                const response = await axios.get('/api/productType');
-                this.productTypeApiData = response.data;
+                const response = await axios.get('/api/product-type');
+                this.productTypeApiData = response.data?.data ?? response.data;
             } catch (error) {
                 console.log(error);
             }
@@ -399,6 +399,11 @@ const app = Vue.createApp({
             } catch (error) {
                 console.log(error);
             } finally {
+                swal("排序成功!", {
+                    icon: "success",
+                    buttons: false,
+                    timer: 800,
+                });
                 this.getProductData();
             }
         },

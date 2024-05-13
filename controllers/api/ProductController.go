@@ -24,7 +24,7 @@ func GetProducts(c *gin.Context) {
 
 	// 接收參數並強制轉 int
 	limitQuery := c.Query("limit")
-	pageQuery := c.Query("page")
+	pageQuery := c.DefaultQuery("page", "1")
 	keyword := c.DefaultQuery("keyword", "")
 	limit, _ := strconv.Atoi(limitQuery)
 	page, _ := strconv.Atoi(pageQuery)
@@ -41,7 +41,7 @@ func GetProducts(c *gin.Context) {
 	if limit > 0 {
 		queryBuilder.Limit(limit)
 	}
-	if page > 0 {
+	if page > 1 {
 		queryBuilder.Offset(page*limit - limit)
 	}
 	queryBuilder.Debug().Order("sort asc").Find(&productsList)
@@ -59,6 +59,7 @@ func GetProducts(c *gin.Context) {
 	}
 
 	result := map[string]interface{}{
+		"page":      page,
 		"totlaRows": totalRows,
 		"data":      data,
 	}
@@ -115,16 +116,6 @@ func UpdateProduct(c *gin.Context) {
 	db.Debug().Table(models.ProductTypeDetail{}.GetTableName()).Create(&temp)
 
 	c.JSON(http.StatusOK, gin.H{"message": "更新成功"})
-}
-
-/**
- * @api {get} /api/productType 取得商品類型
- */
-func GetProductType(c *gin.Context) {
-	db := database.GormConnect()
-	productTypeList := []models.ProductType{}
-	db.Table(models.ProductType{}.GetTableName()).Find(&productTypeList)
-	c.JSON(http.StatusOK, productTypeList)
 }
 
 /**
@@ -187,7 +178,6 @@ func DeleteProduct(c *gin.Context) {
 	db.Debug().Model(&models.Products{}).Where("id = ?", id).Update("status", 0)
 
 	c.JSON(http.StatusOK, gin.H{"message": "刪除成功"})
-
 }
 
 /**
@@ -212,4 +202,110 @@ func SortProduct(c *gin.Context) {
 		db.Debug().Model(&models.Products{}).Where("id = ?", pid).Update("sort", (sortData.Page-1)*sortData.Perpage+idx+1)
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "更新成功"})
+}
+
+/**
+ * @api {get} /api/product-type 取得商品類型
+ */
+func GetProductType(c *gin.Context) {
+	// 接收參數並強制轉 int
+	limitQuery := c.DefaultQuery("limit", "-1")
+	pageQuery := c.DefaultQuery("page", "1")
+	keyword := c.DefaultQuery("keyword", "")
+	limit, _ := strconv.Atoi(limitQuery)
+	page, _ := strconv.Atoi(pageQuery)
+
+	db := database.GormConnect()
+	productTypeList := []models.ProductType{}
+	var totalRows int64 // 總筆數
+	queryBuilder := db.Table(models.ProductType{}.GetTableName())
+	queryBuilder.Where("status = 1")
+
+	if keyword != "" {
+		queryBuilder.Where("name LIKE ?", "%"+keyword+"%")
+	}
+	queryBuilder.Count(&totalRows)
+
+	if limit > 0 {
+		queryBuilder.Limit(limit)
+	}
+
+	if page > 1 {
+		queryBuilder.Offset(page*limit - limit)
+	}
+
+	queryBuilder.Find(&productTypeList)
+
+	result := map[string]interface{}{
+		"page":      page,
+		"perpage":   limit,
+		"totlaRows": totalRows,
+		"data":      productTypeList,
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+/**
+ * @api {put} /api/product-type 更新商品類型
+ */
+func UpdateProductType(c *gin.Context) {
+	type UpdateData struct {
+		Id   int    `json:"id" required:"true"`
+		Name string `json:"name" required:"true"`
+	}
+
+	var updateData UpdateData
+	if err := c.ShouldBindJSON(&updateData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db := database.GormConnect()
+	db.Debug().Table(models.ProductType{}.GetTableName()).
+		Where("id = ?", updateData.Id).
+		Updates(map[string]interface{}{
+			"name":        updateData.Name,
+			"update_time": time.Now().Format("2006-01-02 15:04:05"),
+		})
+
+	c.JSON(http.StatusOK, gin.H{"message": "更新成功"})
+}
+
+/**
+ * @api {post} /api/product-type 新增商品類型
+ */
+func CreateProductType(c *gin.Context) {
+	type PostData struct {
+		Name string `json:"name" required:"true"`
+	}
+
+	var postData PostData
+	if err := c.ShouldBindJSON(&postData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db := database.GormConnect()
+	insertData := models.ProductType{
+		Name:       postData.Name,
+		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+		UpdateTime: time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	db.Debug().Table(models.ProductType{}.GetTableName()).Create(&insertData)
+
+	c.JSON(http.StatusOK, gin.H{"message": "新增成功"})
+}
+
+/**
+ * @api {delete} /api/product-type/:id 刪除商品類型
+ */
+func DeleteProductType(c *gin.Context) {
+	id := c.Param("id")
+	db := database.GormConnect()
+
+	// 刪除 product 產品資訊(假刪除)
+	db.Debug().Table(models.ProductType{}.GetTableName()).Where("id = ?", id).Update("status", 0)
+
+	c.JSON(http.StatusOK, gin.H{"message": "刪除成功"})
 }
