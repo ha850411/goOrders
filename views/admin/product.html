@@ -146,6 +146,17 @@
                     <textarea class="form-control" rows="4" v-model="modalData.content"></textarea>
                 </div>
 
+                <div class="form-group">
+                    <label for="">商品圖片:</label>
+                    <input type="file" @change="handlerUpload" ref="uploadFile" 
+                    accept=".jpg, .jpeg, .png, .gif"
+                    style="margin-bottom: 5px">
+                    
+                    <img v-if="uploadFile?.link" style="width: 200px;"
+                    :src="uploadFile.link">
+                    <img v-else-if="modalMode=='edit'" style="width: 200px;"
+                    :src="'/static/uploads/products/' + modalData.id + '.png'">
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" @click="doSubmit()">送出</button>
@@ -203,6 +214,7 @@ const app = Vue.createApp({
             selectedProductType: [],
             sortable: null,
             sortable2: null,
+            uploadFile: null,
         }
     },
     mounted() {
@@ -241,7 +253,6 @@ const app = Vue.createApp({
                 animation: 150,
                 handle: ".sortItem",
                 ghostClass: 'blue-background-class',
-
                 onUpdate: this.sortableUpdate,
             });
             this.productApiLoading = false;
@@ -255,12 +266,16 @@ const app = Vue.createApp({
             }
         },
         addProduct: function() {
+            this.uploadFile = null;
+            this.$refs.uploadFile.value = null;
             this.modalMode = "add";
             this.modalData = {};
             this.selectedProductType = [];
             $('#productEditModal').modal('show');
         },
         editProduct: function(data) {
+            this.uploadFile = null;
+            this.$refs.uploadFile.value = null;
             this.modalMode = "edit";
             this.modalData = JSON.parse(JSON.stringify(data)); // 淺拷貝, 避免修改到原值
             this.selectedProductType = data.product_type?.map(item => item.id);
@@ -292,25 +307,26 @@ const app = Vue.createApp({
             }
             
             try {
+                let formData = new FormData();
+                formData.append('id', this.modalData?.id);
+                formData.append('name', this.modalData.name);
+                formData.append('amount', this.modalData.amount);
+                formData.append('price', this.modalData.price);
+                formData.append('discount_price', this.modalData.discount_price ?? 0);
+                formData.append('product_type', this.selectedProductType);
+                formData.append('content', this.modalData.content ?? "");
+                if (this.uploadFile?.file) {
+                    formData.append('uploadFile', this.uploadFile.file);
+                }
+                let headerInfo = {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                };
                 if (this.modalMode == "add") {
-                    const response = await axios.post('/api/product', {
-                        name: this.modalData.name,
-                        amount: this.modalData.amount,
-                        price: this.modalData.price,
-                        discount_price: this.modalData.discount_price ?? 0,
-                        content: this.modalData.content ?? "",
-                        product_type: this.selectedProductType,
-                    });
+                    const response = await axios.post('/api/product', formData, headerInfo);
                 } else {
-                    const response = await axios.put('/api/product', {
-                        id: this.modalData.id,
-                        name: this.modalData.name,
-                        amount: this.modalData.amount,
-                        price: this.modalData.price,
-                        discount_price: this.modalData.discount_price,
-                        product_type: this.selectedProductType,
-                        content: this.modalData.content,
-                    });
+                    const response = await axios.put('/api/product', formData, headerInfo);
                 }
                 swal( (this.modalMode == "add" ? "新增" : "修改") + "成功!", {
                     icon: "success",
@@ -426,7 +442,18 @@ const app = Vue.createApp({
             });
             
             $('#sortModal').modal('show');
-        }
+        },
+        handlerUpload: async function(el) {
+            const reader = new FileReader();
+            reader.readAsDataURL(el.target.files[0]);
+            reader.onload = await function() {
+              vm.uploadFile = {
+                "file": el.target.files[0],
+                "name": el.target.files[0].name,
+                "link": reader.result,
+              };
+            };
+        },
     },
 });
 const vm = app.mount('#app');

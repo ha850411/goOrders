@@ -2,10 +2,12 @@ package api
 
 import (
 	"fmt"
+	"goOrders/conf"
 	"goOrders/database"
 	"goOrders/models"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -72,21 +74,38 @@ func GetProducts(c *gin.Context) {
  * @return {json}
  */
 func UpdateProduct(c *gin.Context) {
-	type UpdateData struct {
-		Id            int    `json:"id" required:"true"`
-		Name          string `json:"name" required:"true"`
-		Amount        int    `json:"amount" required:"true"`
-		Price         int    `json:"price" required:"true"`
-		DiscountPrice int    `json:"discount_price" required:"true"`
-		Contetnt      string `json:"content" required:"true"`
-		ProductType   []int  `json:"product_type" required:"true"`
-	}
 
+	type UpdateData struct {
+		Id            int    `form:"id" required:"true"`
+		Name          string `form:"name" required:"true"`
+		Amount        string `form:"amount" required:"true"`
+		Price         string `form:"price" required:"true"`
+		DiscountPrice string `form:"discount_price" required:"true"`
+		Contetnt      string `form:"content" required:"true"`
+		ProductType   string `form:"product_type" required:"true"`
+	}
 	var updateData UpdateData
-	if err := c.ShouldBindJSON(&updateData); err != nil {
+	if err := c.ShouldBind(&updateData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	// 上傳檔案
+	file, err := c.FormFile("uploadFile")
+	if err == nil {
+		err2 := c.SaveUploadedFile(
+			file,
+			fmt.Sprintf(
+				"%s/products/%d.png",
+				conf.Settings.Common.UPLOADS_PATH,
+				updateData.Id,
+			),
+		)
+		if err2 != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err2.Error()})
+			return
+		}
+	}
+
 	db := database.GormConnect()
 
 	// 更新 product 產品資訊
@@ -106,10 +125,13 @@ func UpdateProduct(c *gin.Context) {
 		Table(models.ProductTypeDetail{}.GetTableName()).
 		Where("pid = ?", updateData.Id).
 		Delete(&models.ProductTypeDetail{})
+
 	var temp []models.ProductTypeDetail
-	for _, v := range updateData.ProductType {
+	productTypeList := strings.Split(updateData.ProductType, ",")
+	for _, v := range productTypeList {
+		tid, _ := strconv.Atoi(v)
 		temp = append(temp, models.ProductTypeDetail{
-			Tid: v,
+			Tid: tid,
 			Pid: updateData.Id,
 		})
 	}
@@ -123,21 +145,25 @@ func UpdateProduct(c *gin.Context) {
  */
 func CreateProduct(c *gin.Context) {
 	type PostData struct {
-		Name          string `json:"name" required:"true"`
-		Amount        int    `json:"amount" required:"true"`
-		Price         int    `json:"price" required:"true"`
-		DiscountPrice int    `json:"discount_price" required:"true"`
-		Contetnt      string `json:"content" required:"true"`
-		ProductType   []int  `json:"product_type" required:"true"`
+		Name          string `form:"name" required:"true"`
+		Amount        int    `form:"amount" required:"true"`
+		Price         int    `form:"price" required:"true"`
+		DiscountPrice int    `form:"discount_price" required:"true"`
+		Contetnt      string `form:"content" required:"true"`
+		ProductType   string `form:"product_type" required:"true"`
 	}
 
 	var postData PostData
-	if err := c.ShouldBindJSON(&postData); err != nil {
+	if err := c.ShouldBind(&postData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	db := database.GormConnect()
+
+	// 取得目前最大的 sort
+	var maxSort int
+	db.Debug().Model(&models.Products{}).Select("MAX(sort)").Row().Scan(&maxSort)
 
 	// 新增 product 產品資訊
 	insertData := models.Products{
@@ -147,7 +173,7 @@ func CreateProduct(c *gin.Context) {
 		DiscountPrice: postData.DiscountPrice,
 		Content:       postData.Contetnt,
 		Status:        1,
-		Sort:          0,
+		Sort:          maxSort,
 		CreateTime:    time.Now().Format("2006-01-02 15:04:05"),
 		UpdateTime:    time.Now().Format("2006-01-02 15:04:05"),
 	}
@@ -156,13 +182,32 @@ func CreateProduct(c *gin.Context) {
 
 	// 新增 product_type_detail 產品類型
 	var temp []models.ProductTypeDetail
-	for _, v := range postData.ProductType {
+	productTypeList := strings.Split(postData.ProductType, ",")
+	for _, v := range productTypeList {
+		tid, _ := strconv.Atoi(v)
 		temp = append(temp, models.ProductTypeDetail{
-			Tid: v,
+			Tid: tid,
 			Pid: insertData.Id,
 		})
 	}
 	db.Debug().Table(models.ProductTypeDetail{}.GetTableName()).Create(&temp)
+
+	// 上傳檔案
+	file, err := c.FormFile("uploadFile")
+	if err == nil {
+		err2 := c.SaveUploadedFile(
+			file,
+			fmt.Sprintf(
+				"%s/products/%d.png",
+				conf.Settings.Common.UPLOADS_PATH,
+				insertData.Id,
+			),
+		)
+		if err2 != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err2.Error()})
+			return
+		}
+	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "新增成功"})
 }
@@ -195,7 +240,6 @@ func SortProduct(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Printf("sortData: %+v\n", sortData)
 
 	db := database.GormConnect()
 	for idx, pid := range sortData.SortIds {
