@@ -166,7 +166,7 @@ const app = Vue.createApp({
                     }
                 });
                 this.deskApiData = response.data?.data;
-                this.totalRows = response.data?.totlaRows;
+                this.totalRows = response.data?.totalRows;
                 this.totalPage = Math.ceil(this.totalRows / this.perpage);
             } catch (error) {
                 console.log(error);
@@ -221,9 +221,10 @@ const app = Vue.createApp({
                         name: this.modalData.name,
                     });
                 }
-                swal( (this.modalMode == "add" ? "新增" : "修改") + "成功!", {
+                swal.fire({
+                    title: (this.modalMode == "add" ? "新增" : "修改") + "成功!",
                     icon: "success",
-                    buttons: false,
+                    showConfirmButton: false,
                     timer: 1000,
                 });
             } catch (error) {
@@ -235,31 +236,27 @@ const app = Vue.createApp({
         },
         deleteProduct: async function(id) {
             let deleteFlag = false;
-            await swal({
+            await swal.fire({
                 icon: 'warning',
                 title: "確定刪除",
-                buttons: {
-                    cancel: "取消",
-                    catch: {
-                        text: "刪除",
-                        value: "Y",
-                        className: "bg-danger",
-                    },
-                },
-            }).then((value) => {
-                switch (value) {
-                    case "Y":
-                        deleteFlag = true;
-                    break;
+                showCancelButton: true,
+                cancelButtonText: '取消',
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "刪除"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteFlag = true;
                 }
             });
 
             if (deleteFlag) {
                 try {
                     const response = await axios.delete('/api/desk/' + id,);
-                    swal("刪除成功!", {
+                    swal.fire({
+                        title: "刪除成功!",
                         icon: "success",
-                        buttons: false,
+                        showConfirmButton: false,
                         timer: 1000,
                     });
                 } catch (error) {

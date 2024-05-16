@@ -27,11 +27,6 @@ func GetCommonOutput(c *gin.Context, active string) map[string]interface{} {
 	return output
 }
 
-// 首頁
-func Index(c *gin.Context) {
-	c.String(http.StatusOK, "test")
-}
-
 // 自動證書驗證
 func AutoCert(c *gin.Context) {
 	filename := c.Param("files")

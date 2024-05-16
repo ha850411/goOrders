@@ -1,0 +1,158 @@
+<!--引入共用模板-->
+{{ template "layout.html" . }}
+
+{{ define "content" }}
+<div>
+    <!-- Swiper -->
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+            <template v-if="!apiHandler.productType.loading && apiHandler.productType.data">
+                <template v-for="(data, index) in apiHandler.productType.data">
+                    <div class="swiper-slide" ref="slideObject" :data-id="data.id">@{ data.name }</div>
+                </template>
+            </template>
+        </div>
+    </div>
+</div>
+
+<div class="content mt-3">
+
+    <template v-if="apiHandler.products.data.length > 0">
+        <template v-for="data in apiHandler.products.data">
+            <div class="mb-3 d-flex product">
+                <img :src="'/static/uploads/products/' + data.id + '.png'" style="width:200px">
+                <div class="discription">
+                    <div class="product-title">商品名稱: @{ data.name }</div>
+                    <div class="product-price">價格: @{ '$' + data.price }</div>
+                </div>
+            </div>
+        </template>
+    </template>
+    <template v-else-if="!apiHandler.products.loading && apiHandler.products.data.length==0">
+        <h2>找不到商品</h2>
+    </template>
+
+    <div v-if="apiHandler.products.loading" class="mb-3">
+        <img style="width: 25px;" src="/static/images/loading.gif">
+    </div>
+
+    <template v-if="apiHandler.products.data.length < totalRows && !apiHandler.products.loading">
+        <button class="btn btn-info" @click="loadMore()">載入更多</button>
+    </template>
+</div>
+{{end}}
+
+{{ define "script" }}
+<script>
+const app = Vue.createApp({
+    delimiters : ["@{", "}"],
+    data() {
+        return {
+            swiper: null,
+            apiHandler: {
+                products: {
+                    data:[],
+                    loading: false,
+                },
+                productType: {
+                    data:[],
+                    loading: false,
+                }
+            },
+            selectedProductType: 0,
+            page: 1,
+            perpage: 10,
+            totalRows: 0,
+        }
+    },
+    mounted() {
+        this.getProductData();
+        this.getProductTypeData();
+    },
+    watch: {
+        apiHandler: {
+           handler: function (val) {
+               if (this.apiHandler.productType.loading) {
+                    swal.fire({
+                        title: "資料載入中",
+                        text: "loading",
+                        icon: "info",
+                        showConfirmButton: false,
+                        allowOutsideClick: false,
+                    });
+               } else {
+                    swal.close();
+               }
+           },
+           deep: true,
+        },
+        selectedProductType: function(val) {
+            this.page = 1;
+            this.apiHandler.products.data = [];
+            this.getProductData();
+        }
+    },
+    computed: {
+    },
+    methods: {
+        getProductTypeData: async function() {
+            this.apiHandler.productType.loading = true;
+            try {
+                const response = await axios.get('/api/product-type');
+                this.apiHandler.productType.data = [
+                    {"id": 0, "name": "全部"},
+                    ...response.data?.data ?? response.data,
+                ];
+            } catch (error) {
+                console.log(error);
+            }
+            this.$nextTick(function(){
+                this.swiper = new Swiper(".mySwiper", {
+                    loop: true,
+                    slidesPerView: 3,
+                    slideToClickedSlide: true,
+                    on: {
+                        slideChange: function(event) {
+                            console.log('slideChange');
+                            const currentSlideIndex = event.activeIndex;
+                            const currentSlide = event.slides[currentSlideIndex];
+                            let nowTypeId = currentSlide.getAttribute('data-id');
+                            if (nowTypeId == vm.selectedProductType) {
+                                return;
+                            }
+                            vm.selectedProductType = nowTypeId;
+                        }
+                    }
+                });
+            });
+            this.apiHandler.productType.loading = false;
+        },
+        getProductData: async function() {
+            this.apiHandler.products.loading = true;
+            try {
+                const response = await axios.get('/api/product', {
+                    params: {
+                        product_type_id: this.selectedProductType,
+                        limit: this.perpage,
+                        page: this.page,
+                    }
+                });
+                this.totalRows = response.data?.totalRows ?? 0;
+                this.apiHandler.products.data = [
+                    ...this.apiHandler.products.data,
+                    ...response.data?.data
+                ];
+            } catch (error) {
+                console.log(error);
+            }
+            this.apiHandler.products.loading = false;
+        },
+        loadMore: function() {
+            this.page++;
+            this.getProductData();
+        }
+    },
+});
+const vm = app.mount('#app');
+</script>
+{{end}}

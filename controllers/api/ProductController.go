@@ -28,8 +28,11 @@ func GetProducts(c *gin.Context) {
 	limitQuery := c.Query("limit")
 	pageQuery := c.DefaultQuery("page", "1")
 	keyword := c.DefaultQuery("keyword", "")
+	productTypeQuery := c.DefaultQuery("product_type_id", "")
 	limit, _ := strconv.Atoi(limitQuery)
 	page, _ := strconv.Atoi(pageQuery)
+	productType, _ := strconv.Atoi(productTypeQuery)
+
 	var totalRows int64 // 總筆數
 
 	// 取得啟用的商品
@@ -37,6 +40,10 @@ func GetProducts(c *gin.Context) {
 	// 關鍵字
 	if keyword != "" {
 		queryBuilder.Where("name LIKE ?", "%"+keyword+"%")
+	}
+	// 產品類別
+	if productType > 0 {
+		queryBuilder.Where("id IN (SELECT pid FROM product_type_detail WHERE tid = ?)", productType)
 	}
 	queryBuilder.Count(&totalRows)
 
@@ -46,6 +53,7 @@ func GetProducts(c *gin.Context) {
 	if page > 1 {
 		queryBuilder.Offset(page*limit - limit)
 	}
+
 	queryBuilder.Debug().Order("sort asc").Find(&productsList)
 
 	data := make([]interface{}, 0)
@@ -62,7 +70,7 @@ func GetProducts(c *gin.Context) {
 
 	result := map[string]interface{}{
 		"page":      page,
-		"totlaRows": totalRows,
+		"totalRows": totalRows,
 		"data":      data,
 	}
 
@@ -332,6 +340,7 @@ func CreateProductType(c *gin.Context) {
 	db := database.GormConnect()
 	insertData := models.ProductType{
 		Name:       postData.Name,
+		Status:     1,
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 		UpdateTime: time.Now().Format("2006-01-02 15:04:05"),
 	}
