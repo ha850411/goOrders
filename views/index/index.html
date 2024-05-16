@@ -71,11 +71,13 @@ const app = Vue.createApp({
     },
     watch: {
         apiHandler: {
-           handler: function (val) {
-               if (this.apiHandler.productType.loading) {
+           handler: function () {
+               if (
+                    this.apiHandler.products.data.length == 0 &&
+                    (this.apiHandler.productType.loading || this.apiHandler.products.loading)
+                ) {
                     swal.fire({
                         title: "資料載入中",
-                        text: "loading",
                         icon: "info",
                         showConfirmButton: false,
                         allowOutsideClick: false,
