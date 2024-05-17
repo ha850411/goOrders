@@ -72,19 +72,6 @@ const app = Vue.createApp({
     watch: {
         apiHandler: {
            handler: function () {
-               if (
-                    this.apiHandler.products.data.length == 0 &&
-                    (this.apiHandler.productType.loading || this.apiHandler.products.loading)
-                ) {
-                    swal.fire({
-                        title: "資料載入中",
-                        icon: "info",
-                        showConfirmButton: false,
-                        allowOutsideClick: false,
-                    });
-               } else {
-                    swal.close();
-               }
            },
            deep: true,
         },
