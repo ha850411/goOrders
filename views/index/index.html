@@ -2,7 +2,7 @@
 {{ template "layout.html" . }}
 
 {{ define "content" }}
-<div>
+<div class="m-1">
     <!-- Swiper -->
     <div class="swiper mySwiper">
         <div class="swiper-wrapper">
@@ -20,7 +20,7 @@
     <template v-if="apiHandler.products.data.length > 0">
         <template v-for="data in apiHandler.products.data">
             <div class="mb-3 d-flex product">
-                <img :src="'/static/uploads/products/' + data.id + '.png'" style="width:200px">
+                <img class="product-img" :src="'/static/uploads/products/' + data.id + '.png'">
                 <div class="discription">
                     <div class="product-title">商品名稱: @{ data.name }</div>
                     <div class="product-price">價格: @{ '$' + data.price }</div>

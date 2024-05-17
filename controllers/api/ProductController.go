@@ -43,7 +43,11 @@ func GetProducts(c *gin.Context) {
 	}
 	// 產品類別
 	if productType > 0 {
-		queryBuilder.Where("id IN (SELECT pid FROM product_type_detail WHERE tid = ?)", productType)
+		// SELECT pid FROM product_type_detail WHERE tid = ?
+		queryBuilder.Where(
+			"id IN (?)",
+			db.Table(models.ProductTypeDetail{}.GetTableName()).
+				Select("pid").Where("tid = ?", productType))
 	}
 	queryBuilder.Count(&totalRows)
 

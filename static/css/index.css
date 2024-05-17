@@ -23,7 +23,6 @@
     cursor: pointer;
     text-align: center;
     font-size: 18px;
-    font-weight: bold;
     background: #fff;
     display: flex;
     justify-content: center;
@@ -40,7 +39,8 @@
 }
 
 .swiper-slide-active {
-    background: #dedada;
+    font-weight: bold;
+    background: #d7d4d6;
 }
 
 .content {
@@ -48,16 +48,22 @@
 }
 
 .product {
-    border: 1px solid;
+    border: 1px solid #c7cacd;
     border-radius: 5px;;
     padding: 5px;
 }
 
 .discription {
-    padding: 5px;
+    padding: 5px 5px 5px 15px;
 }
 
 .product-title {
     font-size: 20px;
     font-weight: bold;
+}
+
+.product-img {
+    width: 100%;
+    max-width: 200px;
+    box-shadow: #c7cacd 0 0 5px;
 }
