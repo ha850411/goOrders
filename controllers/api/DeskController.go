@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 /**
@@ -63,7 +64,9 @@ func CreateDesk(c *gin.Context) {
 	}
 
 	db := database.GormConnect()
+
 	insertData := models.Desks{
+		Id:         int(uuid.New().ID()),
 		Name:       postData.Name,
 		Status:     1,
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),

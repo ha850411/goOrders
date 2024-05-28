@@ -99,19 +99,19 @@ const app = Vue.createApp({
                 this.swiper = new Swiper(".mySwiper", {
                     loop: true,
                     slidesPerView: 3,
-                    slideToClickedSlide: true,
-                    on: {
-                        slideChange: function(event) {
-                            console.log('slideChange');
-                            const currentSlideIndex = event.activeIndex;
-                            const currentSlide = event.slides[currentSlideIndex];
-                            let nowTypeId = currentSlide.getAttribute('data-id');
-                            if (nowTypeId == vm.selectedProductType) {
-                                return;
-                            }
-                            vm.selectedProductType = nowTypeId;
-                        }
+                });
+                // slideChange event
+                this.swiper.on("slideChange", function(event) {
+                    const currentSlide = event.slides[event.activeIndex];
+                    let nowTypeId = currentSlide.getAttribute('data-id');
+                    if (nowTypeId == vm.selectedProductType) {
+                        return;
                     }
+                    vm.selectedProductType = nowTypeId;
+                });
+                // click event
+                this.swiper.on("click", function(event) {
+                    vm.swiper.slideToLoop(event.clickedSlide.getAttribute('data-swiper-slide-index'));
                 });
             });
             this.apiHandler.productType.loading = false;
