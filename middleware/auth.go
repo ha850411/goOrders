@@ -17,12 +17,12 @@ func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		loginToken, _ := c.Cookie("loginToken")
 		if loginToken == "" {
-			c.Redirect(http.StatusMovedPermanently, "/admin/login")
+			c.Redirect(http.StatusFound, "/admin/login")
 		}
 		client, _ := service.GetRedisClient()
 		userInfoStr, _ := client.Get(context.Background(), loginToken).Result()
 		if userInfoStr == "" {
-			c.Redirect(http.StatusMovedPermanently, "/admin/login")
+			c.Redirect(http.StatusFound, "/admin/login")
 		}
 
 		var userInfo models.Users
