@@ -23,8 +23,9 @@ func GetWebRouters(r *gin.Engine) {
 	adminGroup.GET("/setting", middleware.Auth(), controllers.SettingManager) // 設定
 
 	// ========= 前台 ===========
-	r.GET("/", controllers.Index)
-	r.GET("/index", controllers.Index)
+	r.GET("/login", controllers.IndexLogin)
+	r.GET("/", middleware.FrontAuth(), controllers.Index)
+	r.GET("/index", middleware.FrontAuth(), controllers.Index)
 
 	// auto cert
 	r.GET("/.well-known/acme-challenge/*files", controllers.AutoCert)

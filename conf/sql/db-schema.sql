@@ -71,11 +71,14 @@ CREATE TABLE `product_type_detail` (
 
 CREATE TABLE `users` (
   `id` int NOT NULL,
-  `username` longtext COLLATE utf8mb4_unicode_ci,
-  `password` longtext COLLATE utf8mb4_unicode_ci,
+  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `role` int NOT NULL COMMENT '0: 一般, 1: 管理者',
-  `linebot_token` longtext COLLATE utf8mb4_unicode_ci,
-  `update_time` longtext COLLATE utf8mb4_unicode_ci
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `linebot_token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `update_time` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -106,7 +109,8 @@ ALTER TABLE `product_type_detail`
 -- 資料表索引 `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`);
 
 --
 -- 在傾印的資料表使用自動遞增(AUTO_INCREMENT)

@@ -48,4 +48,6 @@ func getAdminRouterSetting(render multitemplate.Renderer) {
 func getIndexRouterSetting(render multitemplate.Renderer) {
 	// 首頁
 	render.AddFromFiles("index", index["layout"], "views/index/index.html")
+	// 登入頁
+	render.AddFromFiles("indexLogin", index["layout"], "views/index/login.html")
 }

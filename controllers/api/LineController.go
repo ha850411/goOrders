@@ -1,17 +1,22 @@
 package api
 
 import (
+	"context"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"goOrders/conf"
 	"goOrders/database"
 	"goOrders/middleware"
 	"goOrders/models"
+	"goOrders/service"
 	"goOrders/service/line/login"
 	"goOrders/service/line/notify"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -76,5 +81,58 @@ func LineLogin(c *gin.Context) {
 	defer resp.Body.Close()
 	json.NewDecoder(resp.Body).Decode(&respBody)
 
-	c.JSON(http.StatusOK, respBody)
+	// 分割 JWT 字串
+	jwtToken := respBody["id_token"].(string)
+	parts := strings.Split(jwtToken, ".")
+	if len(parts) != 3 {
+		fmt.Println("Invalid JWT token format")
+		return
+	}
+
+	// 解碼並解析 payload
+	payload, err := decodeSegment(parts[1])
+	if err != nil {
+		fmt.Printf("Error decoding segment: %v\n", err)
+		return
+	}
+	var claims map[string]interface{}
+	if err := json.Unmarshal(payload, &claims); err != nil {
+		fmt.Printf("Error unmarshalling payload: %v\n", err)
+		return
+	}
+
+	// 幫使用者建立帳號, 寫入資料庫
+	db := database.GormConnect()
+	userInfo := &models.Users{}
+	db.Where("username = ?", respBody["userId"].(string)).First(&userInfo)
+	// 判斷使用者是否存在
+	if userInfo.Username == "" {
+		userInfo = &models.Users{
+			Username: respBody["userId"].(string),
+			Password: "",
+			Role:     0,
+			Name:     respBody["displayName"].(string),
+			Email:    claims["email"].(string),
+		}
+		db.Create(userInfo)
+	}
+
+	// 寫入登入資訊
+	uid := base64.URLEncoding.EncodeToString([]byte(userInfo.Username))
+	c.SetCookie("uid", uid, 86400, "/", "", false, false)
+	// 寫入 redis
+	redisClient, _ := service.GetRedisClient()
+	jsonData, _ := json.Marshal(userInfo)
+	redisClient.Set(context.Background(), userInfo.Username, jsonData, time.Second*3600)
+
+	c.Redirect(http.StatusFound, "/")
+}
+
+// decodeSegment 解碼 JWT 的一個段
+func decodeSegment(segment string) ([]byte, error) {
+	// 添加缺失的 '=' 符號以達到正確的 base64 編碼長度
+	if l := len(segment) % 4; l > 0 {
+		segment += strings.Repeat("=", 4-l)
+	}
+	return base64.URLEncoding.DecodeString(segment)
 }

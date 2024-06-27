@@ -2,7 +2,6 @@ package routes
 
 import (
 	"goOrders/controllers/api"
-	"goOrders/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,7 +9,7 @@ import (
 func GetApiRouters(r *gin.Engine) {
 	apiGroup := r.Group("api")
 	{
-		apiGroup.Use(middleware.Auth())
+		// apiGroup.Use(middleware.Auth())
 
 		productRouter := apiGroup.Group("product")
 		{

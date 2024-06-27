@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"goOrders/database"
@@ -29,6 +30,31 @@ func Auth() gin.HandlerFunc {
 		json.Unmarshal([]byte(userInfoStr), &userInfo)
 
 		c.Set("userInfo", userInfo)
+		c.Next()
+	}
+}
+
+// 前台登入中間件
+func FrontAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		uid, _ := c.Cookie("uid")
+		if uid == "" {
+			c.Redirect(http.StatusFound, "/login")
+		}
+		// 將 uid base64 decode
+		uidByte, _ := base64.StdEncoding.DecodeString(uid)
+		uid = string(uidByte)
+
+		client, _ := service.GetRedisClient()
+		userInfoStr, _ := client.Get(context.Background(), uid).Result()
+		if userInfoStr == "" {
+			c.Redirect(http.StatusFound, "/login")
+		}
+
+		var userInfo models.Users
+		json.Unmarshal([]byte(userInfoStr), &userInfo)
+		fmt.Printf("userInfo: %v\n", userInfo)
+		c.Set("indexUser", userInfo)
 		c.Next()
 	}
 }

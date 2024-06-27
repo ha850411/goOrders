@@ -1,0 +1,37 @@
+<!--引入共用模板-->
+{{ template "layout.html" . }}
+
+{{ define "content" }}
+<div class="content mt-3">
+
+    <div style="background-image: url('/static/images/btn_login_base.png'); width:94px;height:44px;position: relative; cursor: pointer;" @click="lineLogin()">
+        <span style="font-size:20px;line-height:20px; color:#FFFFFF; position:absolute; right:5px;top:12px;">登入</span>
+    </div>
+
+</div>
+{{end}}
+
+{{ define "script" }}
+<script>
+const app = Vue.createApp({
+    delimiters : ["@{", "}"],
+    data() {
+        return {
+            lineUrl: '{{.lineUrl}}',
+        }
+    },
+    mounted() {
+    },
+    watch: {
+    },
+    computed: {
+    },
+    methods: {
+        lineLogin: function () {
+            window.location.href = this.lineUrl;
+        }
+    },
+});
+const vm = app.mount('#app');
+</script>
+{{end}}
